@@ -13,7 +13,7 @@ beta = beta' []
   where
     beta' :: Env -> STLC -> Maybe STLC
     beta' env (Var i) = find env (i - 1)
-    beta' env abs@(Abs _ body) = beta' env body
+    beta' env (Abs _ body) = beta' env body
     beta' env (App head arg) = beta' (arg : env) head
 
 isHNF :: STLC -> Bool
