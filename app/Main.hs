@@ -7,6 +7,6 @@ import Transformer
 
 main :: IO ()
 main =  print $ do 
-  ast <- parseMaybe stlc "(λ#a->a. 1) (λ#a. 1)"
+  ast <- parseMaybe stlc "(λ#(a->a)->(a->a). λ#a->a. 2 (2 1)) (λ#a->a. 1) (λ#a. 1)"
   
-  if typeCheck ast then eval ast else Nothing
+  if typeCheck ast then return $ eval ast else Nothing

@@ -6,20 +6,23 @@ import Data.Maybe
 
 import Find
 
-type Env = [STLC]
-
-beta :: STLC -> Maybe STLC -- this is not a beta reduction. name should be changed.
-beta = beta' []
+beta :: STLC -> STLC
+beta (App head arg) = unwrap $ beta' (eval arg) 0 (eval head)
   where
-    beta' :: Env -> STLC -> Maybe STLC
-    beta' env (Var i) = find env (i - 1)
-    beta' env (Abs _ body) = beta' env body
-    beta' env (App head arg) = beta' (arg : env) head
+    beta' ::  STLC -> Int -> STLC -> STLC
+    beta' arg index ast@(Var i) | i == index = arg
+                                | otherwise = ast
+    beta' arg index (Abs t body) = Abs t (beta' arg (index + 1) (eval body))
+    beta' arg index (App head arg') =  App (beta' arg index (eval head)) (beta' arg index (eval arg'))
+    unwrap :: STLC -> STLC
+    unwrap (Abs _ body) = body
+    unwrap ast = ast
+beta ast = ast
 
-isHNF :: STLC -> Bool
-isHNF (App _ _) = False
-isHNF _ = True
+isNF :: STLC -> Bool
+isNF (App _ _) = False
+isNF _ = True
 
-eval :: STLC -> Maybe STLC
-eval ast | isHNF ast = Just ast
-         | otherwise = beta ast >>= eval
+eval :: STLC -> STLC -- result of evaluation must be Lambda
+eval ast | isNF ast = ast
+         | otherwise = eval $ beta ast

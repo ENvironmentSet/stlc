@@ -9,8 +9,17 @@ import Data.Foldable
 import Text.Megaparsec
 import Text.Megaparsec.Char
 
-data TY = TVar String | TLam TY TY deriving (Show, Eq)
-data STLC = Var Int | Abs TY STLC | App STLC STLC deriving Show
+data TY = TVar String | TLam TY TY deriving Eq
+data STLC = Var Int | Abs TY STLC | App STLC STLC
+
+instance Show TY where
+  show (TVar x) = x
+  show (TLam head body) = "(" ++ show head ++ ")->" ++ show body
+
+instance Show STLC where
+  show (Var i) = show i
+  show (Abs t body) = "(λ#" ++ show t ++ ". " ++ show body ++ ")"
+  show (App head arg) = "(" ++ show head ++ " " ++ show arg ++ ")"
 
 type Parser = Parsec Void String
 
